@@ -1502,19 +1502,36 @@ done:
 static int create_stash(int argc, const char **argv, const char *prefix UNUSED,
 			struct repository *repo UNUSED)
 {
+        int include_untracked = 0;
 	int ret;
+        const char *stash_msg = NULL;
 	struct strbuf stash_msg_buf = STRBUF_INIT;
 	struct stash_info info = STASH_INFO_INIT;
 	struct pathspec ps;
 
-	/* Starting with argv[1], since argv[0] is "create" */
-	strbuf_join_argv(&stash_msg_buf, argc - 1, ++argv, ' ');
-
+	if (argc && argv[1][0] == "-") {
+		/* If the arguments start with dash, treat them as options */
+		struct option options[] = {
+			OPT_BOOL('u', "include-untracked", &include_untracked,
+				 N_("include untracked files in stash")),
+			OPT_STRING('m', "message", &stash_msg, N_("message"),
+				 N_("stash message")),
+			OPT_END()
+		};
+		argc = parse_options(argc, argv, prefix, options,
+				     git_stash_helper_create_usage,
+				     0);
+		strbuf_addstr(&stash_msg_buf, stash_msg);
+	} else {
+		/* Treating all areguments as the commit message */
+		/* Starting with argv[1], since argv[0] is "create" */
+		strbuf_join_argv(&stash_msg_buf, argc - 1, ++argv, ' ');
+	}
 	memset(&ps, 0, sizeof(ps));
 	if (!check_changes_tracked_files(&ps))
 		return 0;
 
-	ret = do_create_stash(&ps, &stash_msg_buf, 0, 0, 0, &info,
+	ret = do_create_stash(ps, &stash_msg_buf, include_untracked, 0, &info,
 			      NULL, 0);
 	if (!ret)
 		printf_ln("%s", oid_to_hex(&info.w_commit));
