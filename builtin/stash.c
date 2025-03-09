@@ -1531,7 +1531,7 @@ static int create_stash(int argc, const char **argv, const char *prefix UNUSED,
 	if (!check_changes_tracked_files(&ps))
 		return 0;
 
-	ret = do_create_stash(ps, &stash_msg_buf, include_untracked, 0, &info,
+	ret = do_create_stash(&ps, &stash_msg_buf, include_untracked, 0, &info,
 			      NULL, 0);
 	if (!ret)
 		printf_ln("%s", oid_to_hex(&info.w_commit));
