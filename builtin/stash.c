@@ -1523,7 +1523,7 @@ static int create_stash(int argc, const char **argv, const char *prefix UNUSED,
 				     0);
 		strbuf_addstr(&stash_msg_buf, stash_msg);
 	} else {
-		/* Treating all areguments as the commit message */
+		/* Treating all arguments as the commit message */
 		/* Starting with argv[1], since argv[0] is "create" */
 		strbuf_join_argv(&stash_msg_buf, argc - 1, ++argv, ' ');
 	}
